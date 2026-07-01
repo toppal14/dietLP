@@ -1438,6 +1438,11 @@ window.onYouTubeIframeAPIReady = function() {
         try { e.target.unloadModule('captions'); } catch(err) {}
         try { e.target.setOption('captions','track',{}); } catch(err) {}
         try { e.target.setPlaybackQuality('medium'); } catch(err) {}
+        var captionTimer = setInterval(function() {
+          try { ytPlayerMain.unloadModule('captions'); } catch(err) {}
+          try { ytPlayerMain.setOption('captions','track',{}); } catch(err) {}
+        }, 500);
+        setTimeout(function() { clearInterval(captionTimer); }, 15000);
       },
       onStateChange: function(e) {
         try { ytPlayerMain.unloadModule('captions'); } catch(err) {}
