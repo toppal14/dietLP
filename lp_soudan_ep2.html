@@ -1359,7 +1359,7 @@ function unmuteVideo() {
 function drawWeightChart(canvas) {
   var pts = canvas.dataset.points.split(',').map(Number);
   var dpr = window.devicePixelRatio || 1;
-  var W = canvas.parentElement.clientWidth - 32;
+  var W = (canvas.parentElement.clientWidth || canvas.closest('.container').clientWidth || Math.min(window.innerWidth, 480)) - 32;
   var H = 140;
   canvas.style.width = W + 'px';
   canvas.style.height = H + 'px';
