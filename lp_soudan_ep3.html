@@ -1444,6 +1444,20 @@ function unmuteVideoEp3() {
   var btn = document.getElementById('unmute-btn-ep3');
   if (btn) btn.style.display = 'none';
 }
+
+function runCharts() {
+  document.querySelectorAll('.wl-chart').forEach(function(c) {
+    if (c.parentElement.clientWidth > 0) {
+      drawWeightChart(c);
+    } else {
+      requestAnimationFrame(function() { drawWeightChart(c); });
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(runCharts, 100);
+});
+window.addEventListener('load', runCharts);
 </script>
 </body>
 </html>

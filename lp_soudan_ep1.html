@@ -1406,9 +1406,19 @@ function drawWeightChart(canvas) {
   ctx.stroke();
 }
 
-window.addEventListener('load', function() {
-  document.querySelectorAll('.wl-chart').forEach(drawWeightChart);
+function runCharts() {
+  document.querySelectorAll('.wl-chart').forEach(function(c) {
+    if (c.parentElement.clientWidth > 0) {
+      drawWeightChart(c);
+    } else {
+      requestAnimationFrame(function() { drawWeightChart(c); });
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(runCharts, 100);
 });
+window.addEventListener('load', runCharts);
 
 /* ===== YouTube IFrame API ===== */
 var tag = document.createElement('script');
