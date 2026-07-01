@@ -1427,6 +1427,7 @@ document.head.appendChild(tag);
 var ytPlayer;
 window.onYouTubeIframeAPIReady = function() {
   ytPlayer = new YT.Player('yt-player-ep1', {
+    host: 'https://www.youtube-nocookie.com',
     events: {
       onReady: function(e) {
         try { e.target.unloadModule('captions'); } catch(err) {}
