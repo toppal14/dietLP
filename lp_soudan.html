@@ -931,7 +931,7 @@ footer a { color: rgba(255,255,255,.55); margin: 0 10px; }
 <section class="video-sec">
   <div class="container">
     <div class="video-wrap" style="position:relative;">
-      <iframe id="yt-player-main" src="https://www.youtube-nocookie.com/embed/MzjQo4CmOQk?autoplay=1&mute=1&rel=0&playsinline=1&controls=1&modestbranding=1&cc_load_policy=0&enablejsapi=1"
+      <iframe id="yt-player-main" src="https://www.youtube-nocookie.com/embed/MzjQo4CmOQk?autoplay=1&mute=1&rel=0&playsinline=1&controls=1&modestbranding=1&cc_load_policy=0&iv_load_policy=3&vq=medium&enablejsapi=1"
         frameborder="0" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
       <button id="unmute-btn-main" onclick="unmuteVideoMain()" style="
         position:absolute; top:10px; right:10px; z-index:10;
@@ -1425,21 +1425,32 @@ window.addEventListener('load', function() {
   document.querySelectorAll('.wl-chart').forEach(drawWeightChart);
 });
 
-/* ===== YouTube 字幕強制オフ ===== */
-function sendCaptionOffMain() {
-  var iframe = document.getElementById('yt-player-main');
-  if (!iframe) return;
-  iframe.contentWindow.postMessage(JSON.stringify({event:'command', func:'unloadModule', args:['captions']}), '*');
-}
-setTimeout(sendCaptionOffMain, 1500);
-setTimeout(sendCaptionOffMain, 3000);
-setTimeout(sendCaptionOffMain, 6000);
+/* ===== YouTube IFrame API ===== */
+var tag = document.createElement('script');
+tag.src = 'https://www.youtube.com/iframe_api';
+document.head.appendChild(tag);
+var ytPlayerMain;
+window.onYouTubeIframeAPIReady = function() {
+  ytPlayerMain = new YT.Player('yt-player-main', {
+    host: 'https://www.youtube-nocookie.com',
+    events: {
+      onReady: function(e) {
+        try { e.target.unloadModule('captions'); } catch(err) {}
+        try { e.target.setOption('captions','track',{}); } catch(err) {}
+        try { e.target.setPlaybackQuality('medium'); } catch(err) {}
+      },
+      onStateChange: function(e) {
+        try { ytPlayerMain.unloadModule('captions'); } catch(err) {}
+        try { ytPlayerMain.setOption('captions','track',{}); } catch(err) {}
+      }
+    }
+  });
+};
 
 function unmuteVideoMain() {
-  var iframe = document.getElementById('yt-player-main');
-  if (iframe) {
-    iframe.contentWindow.postMessage(JSON.stringify({event:'command', func:'unMute', args:[]}), '*');
-    iframe.contentWindow.postMessage(JSON.stringify({event:'command', func:'setVolume', args:[100]}), '*');
+  if (ytPlayerMain && ytPlayerMain.unMute) {
+    ytPlayerMain.unMute();
+    ytPlayerMain.setVolume(100);
   }
   var btn = document.getElementById('unmute-btn-main');
   if (btn) btn.style.display = 'none';

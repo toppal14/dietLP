@@ -917,7 +917,7 @@ footer a { color: rgba(255,255,255,.55); margin: 0 10px; }
 <section class="video-sec">
   <div class="container">
     <div class="video-wrap" style="position:relative;">
-      <iframe id="yt-player-ep2" src="https://www.youtube-nocookie.com/embed/C6XsydArmv8?autoplay=1&mute=1&rel=0&playsinline=1&controls=1&modestbranding=1&cc_load_policy=0&enablejsapi=1"
+      <iframe id="yt-player-ep2" src="https://www.youtube-nocookie.com/embed/C6XsydArmv8?autoplay=1&mute=1&rel=0&playsinline=1&controls=1&modestbranding=1&cc_load_policy=0&iv_load_policy=3&vq=medium&enablejsapi=1"
         frameborder="0" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
       <button id="unmute-btn" onclick="unmuteVideo()" style="
         position:absolute; top:10px; right:10px; z-index:10;
@@ -927,6 +927,7 @@ footer a { color: rgba(255,255,255,.55); margin: 0 10px; }
         cursor:pointer; display:flex; align-items:center; gap:6px;
         backdrop-filter:blur(4px); white-space:nowrap;
       ">🔊 音を有効にする</button>
+      <div style="position:absolute;top:0;left:0;right:0;height:55px;z-index:4;"></div>
     </div>
     <p class="video-note">🔇 音なしで自動再生します。右上のボタンで音を出せます</p>
   </div>
@@ -1319,17 +1320,6 @@ window.addEventListener('scroll', function(){
   cta.classList.toggle('show', window.scrollY > 500);
 });
 
-/* ===== YouTube 字幕強制オフ ===== */
-function sendCaptionOff() {
-  var iframe = document.getElementById('yt-player-ep2');
-  if (!iframe) return;
-  var msg = JSON.stringify({event:'command', func:'unloadModule', args:['captions']});
-  iframe.contentWindow.postMessage(msg, '*');
-}
-setTimeout(sendCaptionOff, 1500);
-setTimeout(sendCaptionOff, 3000);
-setTimeout(sendCaptionOff, 5000);
-
 var tag = document.createElement('script');
 tag.src = 'https://www.youtube.com/iframe_api';
 document.head.appendChild(tag);
@@ -1340,6 +1330,7 @@ window.onYouTubeIframeAPIReady = function() {
       onReady: function(e) {
         try { e.target.unloadModule('captions'); } catch(err) {}
         try { e.target.setOption('captions','track',{}); } catch(err) {}
+        try { e.target.setPlaybackQuality('medium'); } catch(err) {}
       },
       onStateChange: function(e) {
         try { ytPlayer.unloadModule('captions'); } catch(err) {}
@@ -1353,6 +1344,12 @@ function unmuteVideo() {
   if (ytPlayer && ytPlayer.unMute) {
     ytPlayer.unMute();
     ytPlayer.setVolume(100);
+  } else {
+    var iframe = document.getElementById('yt-player-ep2');
+    if (iframe) {
+      iframe.contentWindow.postMessage(JSON.stringify({event:'command', func:'unMute', args:[]}), '*');
+      iframe.contentWindow.postMessage(JSON.stringify({event:'command', func:'setVolume', args:[100]}), '*');
+    }
   }
   var btn = document.getElementById('unmute-btn');
   if (btn) btn.style.display = 'none';
